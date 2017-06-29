@@ -26,16 +26,31 @@ class Split extends stream.Writable {
 
 	_write(chunk, enc, next) {
 		//console.log('Split::_write(' + chunk.toString() + ')');
+		const buffers = [];
+		const bufferPos = [];
+		this.splits.forEach((split, splitIndex) => {
+			buffers[splitIndex] = new Buffer(chunk.length);
+			bufferPos[splitIndex] = 0;
+		});
+
 		for (let counter = 0; counter < chunk.length; counter++) {
-			this.splits.forEach((split, splitIndex) => {
+			buffers.forEach((buffer, splitIndex) => {
 
 				if ((splitIndex + this.byteCount) % this.nrOfSplits < this.nrOfSplits - this.nrOfSplitsToJoin + 1) {
-					split.push(chunk.slice(counter, counter + 1));
+					buffer.writeInt8(
+						chunk[counter],
+						bufferPos[splitIndex],
+						true
+					);
+					bufferPos[splitIndex]++;
 				}
 
 			});
 			this.byteCount++;
 		}
+		this.splits.forEach((split, splitIndex) => {
+			split.push(buffers[splitIndex].slice(0, bufferPos[splitIndex]));
+		});
 		setImmediate(() => next(null));
 	}
 
