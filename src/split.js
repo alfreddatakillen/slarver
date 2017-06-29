@@ -25,6 +25,7 @@ class Split extends stream.Writable {
 	}
 
 	_write(chunk, enc, next) {
+		//console.log('Split::_write(' + chunk.toString() + ')');
 		for (let counter = 0; counter < chunk.length; counter++) {
 			this.splits.forEach((split, splitIndex) => {
 
@@ -35,7 +36,7 @@ class Split extends stream.Writable {
 			});
 			this.byteCount++;
 		}
-		next();
+		setImmediate(() => next(null));
 	}
 
 }

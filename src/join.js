@@ -125,13 +125,13 @@ class Join extends stream.Readable {
 				}
 			}
 			if (this.paused === false) {
-				this.joinSources();
+				setImmediate(() => this.joinSources());
 			}
 		});
 		stream.on('end', () => {
 			this.sourcesEnded++;
 			if (this.paused === false) {
-				this.joinSources();
+				setImmediate(() => this.joinSources());
 			}
 		});
 	}
