@@ -1,3 +1,5 @@
+"strict mode";
+
 const stream = require('stream');
 
 function nextPositionInSplit(splits, splitsToJoin, splitIndex, startPos) {

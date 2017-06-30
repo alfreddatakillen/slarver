@@ -25,7 +25,14 @@ joinedStream.on('data', chunk => {
 });
 
 setInterval(() => {
-	console.log(Math.round(byteCounter / 1024), 'kb/s');
+	const mem = process.memoryUsage();
+	console.log(
+		Math.round(byteCounter / 1024) + 'kb/s, mem:' +
+		mem.rss / 1048576 + 'mb/' + mem.heapTotal / 1048576 + 'mb/' + mem.heapUsed / 1048576 + 'mb'
+	);
 	byteCounter = 0;
+	if (global.gc) {
+		global.gc();
+	}
 }, 1000);
 
