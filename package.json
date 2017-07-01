@@ -21,7 +21,10 @@
   "homepage": "https://github.com/alfreddatakillen/slarver#readme",
   "devDependencies": {
     "chai": "^4.0.2",
+    "heapdump": "^0.3.9",
     "mocha": "^3.4.2",
     "nyc": "^11.0.3"
+  },
+  "dependencies": {
   }
 }

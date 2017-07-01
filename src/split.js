@@ -1,5 +1,6 @@
 'use strict';
 
+const Fragment = require('./fragment');
 const stream = require('stream');
 
 class Split extends stream.Writable {
@@ -9,9 +10,8 @@ class Split extends stream.Writable {
 		this.byteCount = 0;
 		this.nrOfSplits = nrOfSplits;
 		this.nrOfSplitsToJoin = nrOfSplitsToJoin;
-		this.splits = [...Array(nrOfSplits)].map(() => new stream.Readable({
-			read: () => {}
-		}));
+		this.splitsPaused = 0;
+		this.splits = [...Array(nrOfSplits)].map(() => new Fragment());
 		this.splits.forEach((split, splitIndex) => {
 			split.push(new Buffer([
 				nrOfSplits,
@@ -27,7 +27,12 @@ class Split extends stream.Writable {
 	}
 
 	_write(chunk, enc, next) {
-		//console.log('Split::_write(' + chunk.toString() + ')');
+		console.log('split::_write()');
+		if (this.splitsPaused !== 0) {
+			console.log(' - called when splitsPaused !== 0');
+			return; 
+		}
+
 		const buffers = [];
 		const bufferPos = [];
 		this.splits.forEach((split, splitIndex) => {
@@ -51,9 +56,12 @@ class Split extends stream.Writable {
 			this.byteCount++;
 		}
 		this.splits.forEach((split, splitIndex) => {
-			split.push(buffers[splitIndex].slice(0, bufferPos[splitIndex]));
+			if (split.push(buffers[splitIndex].slice(0, bufferPos[splitIndex])) === false) {
+				console.log('++');
+				this.splitsPaused++;
+			}
 		});
-		setImmediate(() => next(null));
+		next(null);
 	}
 
 }

@@ -1,4 +1,4 @@
-"strict mode";
+'use strict';
 
 const stream = require('stream');
 
@@ -24,6 +24,7 @@ class Join extends stream.Readable {
 	}
 
 	_read() {
+		console.log('join::_read()');
 		this.joinSources();
 	}
 
@@ -37,10 +38,12 @@ class Join extends stream.Readable {
 		if (this.sourceCounter === 0) return;
 
 		let lastByteCounter;
+		console.log('lastByteCounter', lastByteCounter, 'byteCounter', this.byteCounter);
 		while (lastByteCounter !== this.byteCounter) {
 
 			lastByteCounter = this.byteCounter;
 
+			console.log('sourcesEnded', this.sourcesEnded);
 			if (this.sourcesEnded === this.sourceCounter) {
 				const totalBuffered = this.buffers.reduce((acc, buffer) => {
 					return acc + buffer.length;
@@ -69,7 +72,9 @@ class Join extends stream.Readable {
 					this.bufferPosition[sourceIndex] = nextPos;
 				}
 
+				console.log('byteCounter', this.byteCounter, 'bufferPosition', this.bufferPosition);
 				if (this.bufferPosition[sourceIndex] === this.byteCounter) {
+					console.log('this.buffers[' + sourceIndex + '].length == ', this.buffers[sourceIndex].length);
 					if (this.buffers[sourceIndex].length > 0) {
 						this.byteCounter++;
 
@@ -106,6 +111,7 @@ class Join extends stream.Readable {
 		this.buffers[sourceIndex] = new Buffer('');
 
 		stream.on('data', chunk => {
+			console.log('source#' + sourceIndex + ' got data.');
 			this.buffers[sourceIndex] = Buffer.concat([
 				this.buffers[sourceIndex],
 				chunk
