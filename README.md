@@ -6,15 +6,15 @@ streams with redundant parts (called "fragments"). To join the fragment
 streams together to the original stream, you will only need a subset of the
 fragments, since they overlap some data.
 
-For example, to split one stream into five fragments, and then use three
-of those fragments for recreating to original stream:
+For example, to split one stream into five fragment streams, and then use
+three of those fragments for recreating to original stream:
 
 ```
 const Slarver = require('slarver');
 
 const slarver = new Slarver.Split(5, 3);
 // First argument in the class constructor is the number of fragments to
-// create, and the second argument is how many to the fragments you would
+// create, and the second argument is how many of the fragments you would
 // need to recreate the original data.
 
 fs.createReadStream('example.blob').pipe(slarver);
