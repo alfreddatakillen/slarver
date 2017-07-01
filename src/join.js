@@ -2,9 +2,9 @@
 
 const stream = require('stream');
 
-function nextPositionInSplit(splits, splitsToJoin, splitIndex, startPos) {
+function nextPositionInFragment(fragments, fragmentsToJoin, fragmentIndex, startPos) {
 	let pos = startPos;
-	while ((splitIndex + pos) % splits >= splits - splitsToJoin + 1) {
+	while ((fragmentIndex + pos) % fragments >= fragments - fragmentsToJoin + 1) {
 		pos++;
 	}
 	return pos;
@@ -19,7 +19,7 @@ class Join extends stream.Readable {
 		this.sourceCounter = 0;
 		this.bufferPosition = [];
 		this.buffers = [];
-		this.sourceSplits = [];
+		this.sourceFragments = [];
 		this.sourcesEnded = 0;
 	}
 
@@ -56,16 +56,16 @@ class Join extends stream.Readable {
 
 			this.buffers.forEach((buffer, sourceIndex) => {
 
-				const sourceSplit = this.sourceSplits[sourceIndex];
-				const splits = sourceSplit.splits;
-				const splitsToJoin = sourceSplit.splitsToJoin;
-				const splitIndex = sourceSplit.splitIndex;
+				const sourceFragment = this.sourceFragments[sourceIndex];
+				const fragments = sourceFragment.fragments;
+				const fragmentsToJoin = sourceFragment.fragmentsToJoin;
+				const fragmentIndex = sourceFragment.fragmentIndex;
 
 				while (this.bufferPosition[sourceIndex] < this.byteCounter) {
-					const nextPos = nextPositionInSplit(
-						splits,
-						splitsToJoin,
-						splitIndex,
+					const nextPos = nextPositionInFragment(
+						fragments,
+						fragmentsToJoin,
+						fragmentIndex,
 						this.bufferPosition[sourceIndex] + 1
 					);
 					this.buffers[sourceIndex] = this.buffers[sourceIndex].slice(1);
@@ -116,40 +116,40 @@ class Join extends stream.Readable {
 				this.buffers[sourceIndex],
 				chunk
 			]);
-			if (typeof this.sourceSplits[sourceIndex] === 'undefined') {
+			if (typeof this.sourceFragments[sourceIndex] === 'undefined') {
 				if (this.buffers[sourceIndex].length >= 3) {
-					this.sourceSplits[sourceIndex] = {
-						splits: this.buffers[sourceIndex][0],
-						splitsToJoin: this.buffers[sourceIndex][1],
-						splitIndex: this.buffers[sourceIndex][2]
+					this.sourceFragments[sourceIndex] = {
+						fragments: this.buffers[sourceIndex][0],
+						fragmentsToJoin: this.buffers[sourceIndex][1],
+						fragmentIndex: this.buffers[sourceIndex][2]
 					};
 					this.buffers[sourceIndex] = this.buffers[sourceIndex].slice(3);
 
 					if (sourceIndex > 0) {
-						if (this.sourceSplits[sourceIndex].splits
-								!== this.sourceSplits[0].splits) {
-							throw new Error('Not same nr of splits in sources.');
+						if (this.sourceFragments[sourceIndex].fragments
+								!== this.sourceFragments[0].fragments) {
+							throw new Error('Not same nr of fragments in sources.');
 						}
-						if (this.sourceSplits[sourceIndex].splitsToJoin
-								!== this.sourceSplits[0].splitsToJoin) {
+						if (this.sourceFragments[sourceIndex].fragmentsToJoin
+								!== this.sourceFragments[0].fragmentsToJoin) {
 							throw new Error('Not same nr of joins in sources.');
 						}
-						this.sourceSplits.filter((split, index) => {
+						this.sourceFragments.filter((fragment, index) => {
 							return index !== sourceIndex;
-						}).forEach(split => {
-							if (split.splitIndex ===
-									this.sourceSplits[sourceIndex].splitIndex) {
+						}).forEach(fragment => {
+							if (fragment.fragmentIndex ===
+									this.sourceFragments[sourceIndex].fragmentIndex) {
 								throw new Error('Same source used multiple times.');
 							}
 						});
 					}
 
 				}
-				if (typeof this.sourceSplits[sourceIndex] !== 'undefined') {
-					this.bufferPosition[sourceIndex] = nextPositionInSplit(
-						this.sourceSplits[sourceIndex].splits,
-						this.sourceSplits[sourceIndex].splitsToJoin,
-						this.sourceSplits[sourceIndex].splitIndex,
+				if (typeof this.sourceFragments[sourceIndex] !== 'undefined') {
+					this.bufferPosition[sourceIndex] = nextPositionInFragment(
+						this.sourceFragments[sourceIndex].fragments,
+						this.sourceFragments[sourceIndex].fragmentsToJoin,
+						this.sourceFragments[sourceIndex].fragmentIndex,
 						0
 					);
 				}

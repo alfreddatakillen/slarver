@@ -5,60 +5,60 @@ const stream = require('stream');
 
 class Split extends stream.Writable {
 
-	constructor(nrOfSplits, nrOfSplitsToJoin) {
+	constructor(nrOfFragments, nrOfFragmentsToJoin) {
 		super();
 		this.byteCount = 0;
-		this.nrOfSplits = nrOfSplits;
-		this.nrOfSplitsToJoin = nrOfSplitsToJoin;
-		this.splitsPaused = 0;
-		this.splits = [...Array(nrOfSplits)].map(() => new Fragment());
-		this.splits.forEach((split, splitIndex) => {
-			split.push(new Buffer([
-				nrOfSplits,
-				nrOfSplitsToJoin,
-				splitIndex
+		this.nrOfFragments = nrOfFragments;
+		this.nrOfFragmentsToJoin = nrOfFragmentsToJoin;
+		this.fragmentsPaused = 0;
+		this.fragments = [...Array(nrOfFragments)].map(() => new Fragment());
+		this.fragments.forEach((fragment, fragmentIndex) => {
+			fragment.push(new Buffer([
+				nrOfFragments,
+				nrOfFragmentsToJoin,
+				fragmentIndex
 			]));
 		});
 		this.on('finish', () => {
-			this.splits.forEach((split, splitIndex) => {
-				split.push(null);
+			this.fragments.forEach((fragment, fragmentIndex) => {
+				fragment.push(null);
 			});
 		});
 	}
 
 	_write(chunk, enc, next) {
-		console.log('split::_write()');
-		if (this.splitsPaused !== 0) {
-			console.log(' - called when splitsPaused !== 0');
+		console.log('Split::_write()');
+		if (this.fragmentsPaused !== 0) {
+			console.log(' - called when fragmentsPaused !== 0');
 			return; 
 		}
 
 		const buffers = [];
 		const bufferPos = [];
-		this.splits.forEach((split, splitIndex) => {
-			buffers[splitIndex] = new Buffer(chunk.length);
-			bufferPos[splitIndex] = 0;
+		this.fragments.forEach((fragment, fragmentIndex) => {
+			buffers[fragmentIndex] = new Buffer(chunk.length);
+			bufferPos[fragmentIndex] = 0;
 		});
 
 		for (let counter = 0; counter < chunk.length; counter++) {
-			buffers.forEach((buffer, splitIndex) => {
+			buffers.forEach((buffer, fragmentIndex) => {
 
-				if ((splitIndex + this.byteCount) % this.nrOfSplits < this.nrOfSplits - this.nrOfSplitsToJoin + 1) {
+				if ((fragmentIndex + this.byteCount) % this.nrOfFragments < this.nrOfFragments - this.nrOfFragmentsToJoin + 1) {
 					buffer.writeInt8(
 						chunk[counter],
-						bufferPos[splitIndex],
+						bufferPos[fragmentIndex],
 						true
 					);
-					bufferPos[splitIndex]++;
+					bufferPos[fragmentIndex]++;
 				}
 
 			});
 			this.byteCount++;
 		}
-		this.splits.forEach((split, splitIndex) => {
-			if (split.push(buffers[splitIndex].slice(0, bufferPos[splitIndex])) === false) {
+		this.fragments.forEach((fragment, fragmentIndex) => {
+			if (fragment.push(buffers[fragmentIndex].slice(0, bufferPos[fragmentIndex])) === false) {
 				console.log('++');
-				this.splitsPaused++;
+				this.fragmentsPaused++;
 			}
 		});
 		next(null);

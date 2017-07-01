@@ -19,11 +19,11 @@ const slarver = new Slarver.Split(5, 3);
 
 fs.createReadStream('example.blob').pipe(slarver);
 
-slarver.splits[0].pipe(fs.createWriteStream('example.blob-fragment0'));
-slarver.splits[1].pipe(fs.createWriteStream('example.blob-fragment1'));
-slarver.splits[2].pipe(fs.createWriteStream('example.blob-fragment2'));
-slarver.splits[3].pipe(fs.createWriteStream('example.blob-fragment3'));
-slarver.splits[4].pipe(fs.createWriteStream('example.blob-fragment4'));
+slarver.fragments[0].pipe(fs.createWriteStream('example.blob-fragment0'));
+slarver.fragments[1].pipe(fs.createWriteStream('example.blob-fragment1'));
+slarver.fragments[2].pipe(fs.createWriteStream('example.blob-fragment2'));
+slarver.fragments[3].pipe(fs.createWriteStream('example.blob-fragment3'));
+slarver.fragments[4].pipe(fs.createWriteStream('example.blob-fragment4'));
 ```
 
 To join three of those streams together into the original stream:

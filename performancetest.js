@@ -1,7 +1,7 @@
 'use strict';
 
-const splits = 5;
-const splitsToJoin = 3;
+const fragments = 5;
+const fragmentsToJoin = 3;
 
 const crypto = require('crypto');
 const fs = require('fs');
@@ -9,7 +9,7 @@ const heapdump = require('heapdump');
 const stream = require('stream');
 const slarver = require('./index');
 
-const split = new slarver.Split(splits, splitsToJoin);
+const split = new slarver.Split(fragments, fragmentsToJoin);
 const originalStream = new stream.Readable();
 
 originalStream._read = function() {
@@ -24,11 +24,11 @@ originalStream.pipe(split);
 split.on('drain', () => console.log('split drained'));
 
 const joinedStream = new slarver.Join();
-joinedStream.source(split.splits[0]);
-joinedStream.source(split.splits[1]);
-joinedStream.source(split.splits[2]);
-joinedStream.source(split.splits[3]);
-joinedStream.source(split.splits[4]);
+joinedStream.source(split.fragments[0]);
+joinedStream.source(split.fragments[1]);
+joinedStream.source(split.fragments[2]);
+joinedStream.source(split.fragments[3]);
+joinedStream.source(split.fragments[4]);
 
 let byteCounter = 0;
 joinedStream.on('data', chunk => {

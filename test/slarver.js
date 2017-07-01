@@ -20,24 +20,24 @@ describe('Slarver', () => {
 
 		const testStr = 'Alfred was here.';
 
-		for (let splits = 2; splits <= (testStr.length * 2) + 1; splits++) {
-			for (let splitsToJoin = 2; splitsToJoin <= splits; splitsToJoin++) {
+		for (let fragments = 2; fragments <= (testStr.length * 2) + 1; fragments++) {
+			for (let fragmentsToJoin = 2; fragmentsToJoin <= fragments; fragmentsToJoin++) {
 
-				((splits, splitsToJoin) => {
+				((fragments, fragmentsToJoin) => {
 					result = result.then(() => {
 						return new Promise((resolve, reject) => {
 
-							const split = new slarver.Split(splits, splitsToJoin);
+							const split = new slarver.Split(fragments, fragmentsToJoin);
 							const originalStream = new stream.Readable();
 							originalStream.pipe(split);
 
 							const joinedStream = new slarver.Join();
 
-							split.splits.reduce((acc, s) => {
+							split.fragments.reduce((acc, s) => {
 								acc.push(s);
 								return acc.sort(() => 0.5 - Math.random());
 							}, []).filter((s, sindex) => {
-								return sindex < splitsToJoin;
+								return sindex < fragmentsToJoin;
 							}).forEach((s) => {
 								joinedStream.source(s);
 							});
@@ -59,7 +59,7 @@ describe('Slarver', () => {
 
 						});
 					});
-				})(splits, splitsToJoin);
+				})(fragments, fragmentsToJoin);
 
 			}
 		}
