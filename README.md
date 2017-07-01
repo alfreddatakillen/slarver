@@ -56,3 +56,11 @@ npm test
 ```
 
 A code coverage report will be generated in the `coverage/` directory.
+
+## Split file format
+
+* Byte 1-16: Random UUID for the split. 128 bit big-endian.
+* Byte 17: The number of splits created.
+* Byte 18: The number of splits required to re-create the original stream.
+* Byte 19: The index for this split file.
+* Byte 20-: The very data...
