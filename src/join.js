@@ -1,6 +1,7 @@
 'use strict';
 
 const stream = require('stream');
+const uuid = require('./uuid');
 
 function nextPositionInFragment(fragments, fragmentsToJoin, fragmentIndex, startPos) {
 	let pos = startPos;
@@ -117,15 +118,21 @@ class Join extends stream.Readable {
 				chunk
 			]);
 			if (typeof this.sourceFragments[sourceIndex] === 'undefined') {
-				if (this.buffers[sourceIndex].length >= 3) {
+				if (this.buffers[sourceIndex].length >= 20) {
 					this.sourceFragments[sourceIndex] = {
-						fragments: this.buffers[sourceIndex][0],
-						fragmentsToJoin: this.buffers[sourceIndex][1],
-						fragmentIndex: this.buffers[sourceIndex][2]
+						fragmentDataVersion: this.buffers[sourceIndex][0],
+						splitUuid: uuid.bufferToUuid(this.buffers[sourceIndex].slice(1, 17)),
+						fragments: this.buffers[sourceIndex][17],
+						fragmentsToJoin: this.buffers[sourceIndex][18],
+						fragmentIndex: this.buffers[sourceIndex][19]
 					};
 					this.buffers[sourceIndex] = this.buffers[sourceIndex].slice(3);
 
 					if (sourceIndex > 0) {
+						if (this.sourceFragments[sourceIndex].splitUuid
+								!== this.sourceFragments[0].splitUuid) {
+							throw new Error('Not the same split UUID.');
+						}
 						if (this.sourceFragments[sourceIndex].fragments
 								!== this.sourceFragments[0].fragments) {
 							throw new Error('Not same nr of fragments in sources.');

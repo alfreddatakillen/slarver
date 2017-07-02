@@ -1,5 +1,6 @@
 'use strict';
 
+const crypto = require('crypto');
 const Fragment = require('./fragment');
 const stream = require('stream');
 
@@ -7,18 +8,14 @@ class Split extends stream.Writable {
 
 	constructor(nrOfFragments, nrOfFragmentsToJoin) {
 		super();
+		this.uuid = crypto.randomBytes(16);
+
 		this.byteCount = 0;
 		this.nrOfFragments = nrOfFragments;
 		this.nrOfFragmentsToJoin = nrOfFragmentsToJoin;
 		this.fragmentsPaused = 0;
-		this.fragments = [...Array(nrOfFragments)].map(() => new Fragment());
-		this.fragments.forEach((fragment, fragmentIndex) => {
-			fragment.push(new Buffer([
-				nrOfFragments,
-				nrOfFragmentsToJoin,
-				fragmentIndex
-			]));
-		});
+		this.fragments = [...Array(nrOfFragments)]
+			.map((val, index) => new Fragment(index, this));
 		this.on('finish', () => {
 			this.fragments.forEach((fragment, fragmentIndex) => {
 				fragment.push(null);
