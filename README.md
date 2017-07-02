@@ -6,8 +6,15 @@ streams with redundant parts (called "fragments"). To join the fragment
 streams together to the original stream, you will only need a subset of the
 fragments, since they overlap some data.
 
-For example, to split one stream into five fragment streams, and then use
-three of those fragments for recreating to original stream:
+As the name suggests ("slarver" is a swedish word for someone who is careless,
+sloppy and loses/misplaces stuff), this module was made for protecting from
+data loss if storage gets lost/unavailable.
+
+## Example
+
+In this example, we split a stream into five fragment streams.
+Later, we can re-create the original stream from just three out of those five
+fragments.
 
 ```
 const Slarver = require('slarver');
@@ -57,11 +64,12 @@ npm test
 
 A code coverage report will be generated in the `coverage/` directory.
 
-## Fragment data format
+## Fragment data format, version 1
 
-* Byte 1-16: Random UUID for the split. All fragments created in one split
+* Byte 1: Format version number. (1 is the current format version number.)
+* Byte 2-17: Random UUID for the split. All fragments created in one split
   will have the same UUID. It is a 128 bit big-endian.
-* Byte 17: The number of fragments created.
-* Byte 18: The number of fragments required to re-create the original stream.
-* Byte 19: The index for this fragment file.
-* Byte 20-: The very data...
+* Byte 18: The number of fragments created.
+* Byte 19: The number of fragments required to re-create the original stream.
+* Byte 20: The index for this fragment file.
+* Byte 21-: The very data...
