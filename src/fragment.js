@@ -8,7 +8,7 @@ class Fragment extends stream.Readable {
 		this.fragmentIndex = fragmentIndex;
 		this.split = split;
 
-		// Make the data format header inte the beginning of the stream:
+		// Make the data format header in the the beginning of the stream:
 
 		this.push(new Buffer([1])); // Data format version 1.
 		this.push(this.split.uuid); // Split identification
