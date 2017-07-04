@@ -8,7 +8,7 @@ fragments, since they overlap some data.
 
 As the name suggests ("slarver" is a swedish word for someone who is careless,
 sloppy and loses/misplaces stuff), this module was made for protecting from
-data loss if storage gets lost/unavailable.
+data loss when storage gets partially lost/unavailable.
 
 ## Example
 
@@ -17,44 +17,44 @@ Later, we can re-create the original stream from just three out of those five
 fragments.
 
 ```
-const Slarver = require('slarver');
+const slarver = require('slarver');
 
-const slarver = new Slarver.Split(5, 3);
+const splitter = new slarver.Split(5, 3);
 // First argument in the class constructor is the number of fragments to
 // create, and the second argument is how many of the fragments you would
 // need to recreate the original data.
 
 fs.createReadStream('example.blob').pipe(slarver);
 
-slarver.fragments[0].pipe(fs.createWriteStream('example.blob-fragment0'));
-slarver.fragments[1].pipe(fs.createWriteStream('example.blob-fragment1'));
-slarver.fragments[2].pipe(fs.createWriteStream('example.blob-fragment2'));
-slarver.fragments[3].pipe(fs.createWriteStream('example.blob-fragment3'));
-slarver.fragments[4].pipe(fs.createWriteStream('example.blob-fragment4'));
+splitter.fragments[0].pipe(fs.createWriteStream('example.blob-fragment0'));
+splitter.fragments[1].pipe(fs.createWriteStream('example.blob-fragment1'));
+splitter.fragments[2].pipe(fs.createWriteStream('example.blob-fragment2'));
+splitter.fragments[3].pipe(fs.createWriteStream('example.blob-fragment3'));
+splitter.fragments[4].pipe(fs.createWriteStream('example.blob-fragment4'));
 ```
 
 To join three of those streams together into the original stream:
 
 ```
-const Slarver = require('slarver');
+const slarver = require('slarver');
 
-const slarver = new Slarver.Join();
+const joiner = new slarver.Join();
 
 // You can use any three of the five fragments, in any order:
-slarver.source(fs.createReadStream('example.blob-fragment4'));
-slarver.source(fs.createReadStream('example.blob-fragment1'));
-slarver.source(fs.createReadStream('example.blob-fragment3'));
+joiner.source(fs.createReadStream('example.blob-fragment4'));
+joiner.source(fs.createReadStream('example.blob-fragment1'));
+joiner.source(fs.createReadStream('example.blob-fragment3'));
 
-slarver.pipe(fw.createWriteStream('example.blob-copy'));
+joiner.pipe(fw.createWriteStream('example.blob-copy'));
 ```
 
-## The `Slarver.Split` Class
+## The `slarver.Split` Class
 
-The `Slarver.Split` Class implements a Writable Stream.
+The `slarver.Split` Class implements a Writable Stream.
 
 ## The `Slarver.Join` Class
 
-The `Slarver.Join` Class implements a Readable Stream.
+The `slarver.Join` Class implements a Readable Stream.
 
 ## To run the tests
 
