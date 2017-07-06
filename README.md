@@ -24,7 +24,7 @@ const splitter = new slarver.Split(5, 3);
 // create, and the second argument is how many of the fragments you would
 // need to recreate the original data.
 
-fs.createReadStream('example.blob').pipe(slarver);
+fs.createReadStream('example.blob').pipe(splitter);
 
 splitter.fragments[0].pipe(fs.createWriteStream('example.blob-fragment0'));
 splitter.fragments[1].pipe(fs.createWriteStream('example.blob-fragment1'));
