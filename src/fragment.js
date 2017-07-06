@@ -21,14 +21,14 @@ class Fragment extends stream.Readable {
 	}
 
 	_read() {
-		console.log('--');
+		//console.log('--');
 		if (this.split.fragmentsPaused > 0) {
 			this.split.fragmentsPaused--;
 		}
-		console.log(this.fragmentsPaused);
+		//console.log(this.fragmentsPaused);
 		if (this.split.fragmentsPaused === 0) {
-			console.log('Fragment emitting drain event.');
-			this.split.emit('drain');
+			// console.log('Fragment emitting drain event.');
+			this.split.onNoPausedFragments(null);
 		}
 	}
 

@@ -13,15 +13,15 @@ const split = new slarver.Split(fragments, fragmentsToJoin);
 const originalStream = new stream.Readable();
 
 originalStream._read = function() {
-	console.log('originalStream._read()');
+	//console.log('originalStream._read()');
 	while (this.push(crypto.pseudoRandomBytes(1024)) === true) {
-		console.log('originalStream just created 1024 bytes of randomness');
+		//console.log('originalStream just created 1024 bytes of randomness');
 	}
-	console.log('originalStream just created 1024 bytes of randomness');
+	//console.log('originalStream just created 1024 bytes of randomness');
 };
 originalStream.pipe(split);
 
-split.on('drain', () => console.log('split drained'));
+//split.on('drain', () => console.log('split drained'));
 
 const joinedStream = new slarver.Join();
 joinedStream.source(split.fragments[0]);

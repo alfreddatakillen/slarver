@@ -9,6 +9,7 @@ class Split extends stream.Writable {
 	constructor(nrOfFragments, nrOfFragmentsToJoin) {
 		super();
 		this.uuid = crypto.randomBytes(16);
+		this.onNoPausedFragments = () => {};
 
 		this.byteCount = 0;
 		this.nrOfFragments = nrOfFragments;
@@ -23,11 +24,11 @@ class Split extends stream.Writable {
 		});
 	}
 
-	_write(chunk, enc, next) {
-		console.log('Split::_write()');
+	_write(chunk, enc, callback) {
+		//console.log('Split::_write()');
 		if (this.fragmentsPaused !== 0) {
-			console.log(' - called when fragmentsPaused !== 0');
-			return; 
+			//console.log(' - called when fragmentsPaused !== 0');
+			return;
 		}
 
 		const buffers = [];
@@ -54,11 +55,29 @@ class Split extends stream.Writable {
 		}
 		this.fragments.forEach((fragment, fragmentIndex) => {
 			if (fragment.push(buffers[fragmentIndex].slice(0, bufferPos[fragmentIndex])) === false) {
-				console.log('++');
+				//console.log('++');
 				this.fragmentsPaused++;
 			}
 		});
-		next(null);
+		if (this.fragmentsPaused === 0) {
+			setImmediate(() => callback(null));
+		} else {
+			this.onNoPausedFragments = callback;
+		}
+	}
+
+	_writev(chunks, callback) {
+		this._write(
+			Buffer.concat(chunks.map(chunk => {
+				if (Buffer.isBuffer(chunk.chunk)) {
+					return chunk.chunk;
+				}
+				return Buffer.from(chunk.chunk, chunk.encoding);
+			})),
+			null,
+			callback
+		);
+
 	}
 
 }
