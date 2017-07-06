@@ -24,7 +24,6 @@ class Fragment extends stream.Readable {
 		if (this.split.fragmentsPaused === 1) {
 			this.split.fragmentsPaused = 0;
 			this.split.onNoPausedFragments(null);
-
 		} else if (this.split.fragmentsPaused > 0) {
 			this.split.fragmentsPaused--;
 		}
