@@ -126,7 +126,7 @@ class Join extends stream.Readable {
 						fragmentsToJoin: this.buffers[sourceIndex][18],
 						fragmentIndex: this.buffers[sourceIndex][19]
 					};
-					this.buffers[sourceIndex] = this.buffers[sourceIndex].slice(3);
+					this.buffers[sourceIndex] = this.buffers[sourceIndex].slice(20);
 
 					if (sourceIndex > 0) {
 						if (this.sourceFragments[sourceIndex].splitUuid
