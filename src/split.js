@@ -9,7 +9,6 @@ class Split extends stream.Writable {
 	constructor(nrOfFragments, nrOfFragmentsToJoin) {
 		super();
 		this.uuid = crypto.randomBytes(16);
-		this.onNoPausedFragments = () => {};
 
 		this.byteCount = 0;
 		this.nrOfFragments = nrOfFragments;
