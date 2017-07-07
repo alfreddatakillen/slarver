@@ -10,8 +10,6 @@ class Split extends stream.Writable {
 		super();
 		this.uuid = crypto.randomBytes(16);
 
-		this.onNoPausedFragments = () => console.log('this is stupid.');
-
 		this.byteCount = 0;
 		this.nrOfFragments = nrOfFragments;
 		this.nrOfFragmentsToJoin = nrOfFragmentsToJoin;
@@ -53,15 +51,17 @@ class Split extends stream.Writable {
 
 			});
 			this.byteCount++;
-		}
-		this.fragments.forEach((fragment, fragmentIndex) => {
-			if (fragment.push(buffers[fragmentIndex].slice(0, bufferPos[fragmentIndex])) === false) {
-				//console.log('++');
-				this.fragmentsPaused++;
+		} 
+		this.fragmentsPaused = this.fragments.map((fragment, fragmentIndex) => {
+			return fragment.push(buffers[fragmentIndex].slice(0, bufferPos[fragmentIndex]));
+		}).reduce((paused, res) => {
+			if (res === false) {
+				paused++;
 			}
-		});
+			return paused;
+		}, 0);
 		if (this.fragmentsPaused === 0) {
-			setImmediate(() => callback(null));
+			callback(null);
 		} else {
 			this.onNoPausedFragments = callback;
 		}
