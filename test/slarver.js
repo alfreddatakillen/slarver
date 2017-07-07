@@ -80,7 +80,7 @@ describe('Slarver', () => {
 		});
 
 		return new Promise((resolve, reject) => {
-			fs.writeFileSync('/tmp/slarver-test-0', crypto.pseudoRandomBytes(1024 * 1024 * 10));
+			fs.writeFileSync(testfile0, crypto.pseudoRandomBytes(1024 * 1024 * 10));
 			const shasum = crypto.createHash('sha1');
 			const file = fs.ReadStream(testfile0);
 			file.on('data', data => shasum.update(data));
@@ -104,9 +104,8 @@ describe('Slarver', () => {
 			});
 		}))
 		.then(checksum0 => new Promise((resolve, reject) => {
-			fs.writeFileSync('/tmp/slarver-test-0', crypto.pseudoRandomBytes(1024 * 1024 * 10));
 			const shasum = crypto.createHash('sha1');
-			const file = fs.ReadStream(testfile0);
+			const file = fs.ReadStream(testfile1);
 			file.on('data', data => shasum.update(data));
 			file.on('end', () => resolve([checksum0, shasum.digest('hex')]));
 		}))
