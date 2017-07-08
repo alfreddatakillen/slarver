@@ -31,10 +31,6 @@ class Join extends stream.Readable {
 
 	joinSources() {
 
-		const outputBufferSize = 8192;
-		const outputBuffer = new Buffer(outputBufferSize);
-		let outputBufferPos = 0;
-
 		this.paused = false;
 		if (this.sourceCounter === 0) return;
 
@@ -78,30 +74,20 @@ class Join extends stream.Readable {
 					//console.log('this.buffers[' + sourceIndex + '].length == ', this.buffers[sourceIndex].length);
 					if (this.buffers[sourceIndex].length > 0) {
 						this.byteCounter++;
-
-						outputBuffer.writeInt8(
-							this.buffers[sourceIndex][0],
-							outputBufferPos,
-							true
-						);
-						if (outputBufferPos === outputBufferSize) {
-							if (this.push(outputBuffer) === false) {
-								this.paused = true;
-							}
-							outputBufferPos = 0;
-						} else {
-							outputBufferPos++;
+						if (this.push(this.buffers[sourceIndex].slice(0, 1)) === false) {
+							this.paused = true;
 						}
+						this.buffers[sourceIndex] = this.buffers[sourceIndex].slice(1)
+						this.bufferPosition[sourceIndex] = nextPositionInFragment(
+							fragments,
+							fragmentsToJoin,
+							fragmentIndex,
+							this.bufferPosition[sourceIndex] + 1
+						);
 					}
 				}
 
 			});
-		}
-		if (outputBufferPos > 0) {
-			if (this.push(outputBuffer.slice(0, outputBufferPos)) === false) {
-				this.paused = true;
-			}
-			outputBufferPos = 0;
 		}
 	}
 
